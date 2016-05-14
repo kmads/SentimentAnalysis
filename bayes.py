@@ -15,6 +15,19 @@ class Bayes_Classifier:
       cache of a trained classifier has been stored, it loads this cache.  Otherwise, 
       the system will proceed through training.  After running this method, the classifier 
       is ready to classify input text."""
+      # Stores the list of filenames in IFileList
+      IFileList = []
+      for fFileObj in os.walk("movies_reviews/"):
+         IFileList = fFileObj[2]
+         break
+
+      # For each filename, parse file name and determine if it's positive (5) or negative (1)
+      self.positiveFiles = [f for f in IFileList if f[7] == '5']
+      self.negativeFiles = [f for f in IFileList if f[7] == '1']
+
+      self.positiveCount = len(self.positiveFiles)
+      self.negativeCount = len(self.negativeFiles)
+
       # If the pickled files exist, load them. Else, train the data.
       try:
          self.positiveDict = self.load('positiveDictionary.p')
@@ -25,59 +38,46 @@ class Bayes_Classifier:
          self.negativeDict = {}
          self.train()
 
-      self.positiveFiles = []
-      self.negativeFiles = []
-      self.positiveCount = 0
-      self.negativeCount = 0
-
 
    def train(self):   
       """Trains the Naive Bayes Sentiment Classifier."""
-      # Stores the list of filenames in IFileList
-      IFileList = []
-      for fFileObj in os.walk("movies_reviews/"):
-         IFileList = fFileObj[2]
-         break
-
-      # For each filename, parse file name and determine if it's positive (5) or negative (1)
-      self.positiveFiles = [f for f in IFileList if f[7] == 5]
-      self.negativeFiles = [f for f in IFileList if f[7] == 1]
-      self.positiveCount = len(self.positiveFiles)
-      self.negativeCount = len(self.negativeFiles)
-
       # Add tokens to negative dictionary
       for filename in self.negativeFiles:
-         tokens = self.tokenize(self.loadFile(filename))
+         tokens = self.tokenize(self.loadFile('movies_reviews/'+filename))
          # for each word in the tokenized file
          for word in tokens:
             # If the word doesn't exist in the negative dictionary yet
-            # initialize the word with 2 (1+1 for smoothing)
+            # initialize the word with 2 (1+1 for smoothing) 
+            # divided by (negative count +1 for smoothing)
             if word not in self.negativeDict:
-               self.negativeDict[word] = 2
+               self.negativeDict[word] = float(2)/(self.negativeCount+1)
             # If this word doesn't exist in the positive dictionary yet
             # initialize the word with 1 (0+1 for smoothing)
+            # divided by (positive count +1 for smoothing)
             if word not in self.positiveDict:
-               self.positiveDict[word] = 1
-            # Otherwise, add 1 to the count
+               self.positiveDict[word] = float(1)/(self.positiveCount+1)
+            # Otherwise, add 1 divided by (negative count + 1) to the count
             elif word in self.negativeDict:
-               self.negativeDict[word] += 1
+               self.negativeDict[word] += float(1)/(self.negativeCount+1)
 
       # Add tokens to positive dictionary
       for filename in self.positiveFiles:
-         tokens = self.tokenize(self.loadFile(filename))
+         tokens = self.tokenize(self.loadFile('movies_reviews/'+filename))
          # for each word in the tokenized file
          for word in tokens:
             # If the word doesn't exist in the positive dictionary yet
             # initialize the word with 2 (1+1 for smoothing)
+            # divided by (positive count +1 for smoothing)
             if word not in self.positiveDict:
-               self.positiveDict[word] = 2
+               self.positiveDict[word] = float(2)/(self.positiveCount+1)
             # If this word doesn't exist in the negative dictionary yet
             # initialize the word with 1 (0+1 for smoothing)
+            # divided by (negative count +1 for smoothing)
             if word not in self.negativeDict:
-               self.negativeDict[word] = 1
-            # Otherwise, add 1 to the count
+               self.negativeDict[word] = float(1)/(self.negativeCount+1)
+            # Otherwise, add 1 divided by (positive count + 1) to the count
             elif word in self.positiveDict:
-               self.positiveDict[word] += 1
+               self.positiveDict[word] += float(1)/(self.positiveCount+1)
 
       # Pickle the files
       self.save(self.positiveDict, 'positiveDictionary.p')
@@ -89,6 +89,25 @@ class Bayes_Classifier:
       """Given a target string sText, this function returns the most likely document
       class to which the target string belongs (i.e., positive, negative or neutral).
       """
+      # Tokenize the text
+      tokens = self.tokenize(sText)
+
+      # Initialize the probabilities to start as log of prior probabilities
+      probPos = math.log(float(self.positiveCount)/(self.positiveCount+self.negativeCount))
+      probNeg = math.log(float(self.negativeCount)/(self.negativeCount+self.positiveCount))
+
+      # Add the log probabilities of each word to the positive and negative probability log sums
+      for word in tokens:
+         probPos+=math.log(self.positiveDict[word])
+         probNeg+= math.log(self.negativeDict[word])
+
+      # Classify the text as whichever probability was higher
+      if probPos > probNeg:
+         return "positive", probPos
+      else:
+         return "negative", probNeg
+
+      # TODO: Figure out neutral threshold
 
    def loadFile(self, sFilename):
       """Given a file name, return the contents of the file as a string."""
