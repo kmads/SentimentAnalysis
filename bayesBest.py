@@ -28,6 +28,8 @@ class Bayes_Classifier:
       self.positiveCount = len(self.positiveFiles)
       self.negativeCount = len(self.negativeFiles)
 
+      # Make sure the dictionaries have the same number of files in them
+      # so the classification isn't skewed towards positive or negative
       if len(self.positiveFiles) > len(self.negativeFiles):
          self.positiveFiles = self.positiveFiles[:self.negativeCount]
       if len(self.negativeFiles) > len(self.positiveFiles):
@@ -101,8 +103,10 @@ class Bayes_Classifier:
       tokens = self.tokenize(sText)
 
       # Initialize the probabilities to start as log of prior probabilities
-      probPos = 0 #math.log(float(self.positiveCount)/(self.positiveCount+self.negativeCount))
-      probNeg = 0 #math.log(float(self.negativeCount)/(self.negativeCount+self.positiveCount))
+      # Don't include prior probability (set them to 0)
+      # so the classification isn't skewed towards positive or negative
+      probPos = 0 
+      probNeg = 0 
 
       # Add the log probabilities of each word to the positive and negative probability log sums
       for word in tokens:
