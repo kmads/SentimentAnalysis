@@ -139,19 +139,20 @@ class Bayes_Classifier:
 
    def tokenize(self, sText): 
       """Given a string of text sText, returns a list of the individual tokens that 
-      occur in that string (in order)."""
+      occur in that string (in order). Tokens have all been made lower case to avoid
+      case sensitivity issues."""
 
       lTokens = []
       sToken = ""
       for c in sText:
          if re.match("[a-zA-Z0-9]", str(c)) != None or c == "\"" or c == "_" or c == "-":
-            sToken += c
+            sToken += c.lower()
          else:
             if sToken != "":
-               lTokens.append(sToken)
+               lTokens.append(sToken.lower())
                sToken = ""
             if c.strip() != "":
-               lTokens.append(str(c.strip()))
+               lTokens.append(str(c.strip()).lower())
                
       if sToken != "":
          lTokens.append(sToken)
