@@ -28,10 +28,18 @@ class Bayes_Classifier:
       self.positiveCount = len(self.positiveFiles)
       self.negativeCount = len(self.negativeFiles)
 
+      if len(self.positiveFiles) > len(self.negativeFiles):
+         self.positiveFiles = self.positiveFiles[:self.negativeCount]
+      if len(self.negativeFiles) > len(self.positiveFiles):
+         self.negativeFiles = self.negativeFiles[:self.positiveCount]
+
+      self.positiveCount = len(self.positiveFiles)
+      self.negativeCount = len(self.negativeFiles)
+
       # If the pickled files exist, load them. Else, train the data.
       try:
-         self.positiveDict = self.load('positiveDictionary.p')
-         self.negativeDict = self.load('negativeDictionary.p')
+         self.positiveDict = self.load('positiveDictionaryBest.p')
+         self.negativeDict = self.load('negativeDictionaryBest.p')
       except IOError:
          print "Training"
          self.positiveDict = {}
@@ -80,8 +88,8 @@ class Bayes_Classifier:
                self.positiveDict[word] += float(1)/(self.positiveCount+1)
 
       # Pickle the files
-      self.save(self.positiveDict, 'positiveDictionary.p')
-      self.save(self.negativeDict, 'negativeDictionary.p')
+      self.save(self.positiveDict, 'positiveDictionaryBest.p')
+      self.save(self.negativeDict, 'negativeDictionaryBest.p')
 
 
 
@@ -93,8 +101,8 @@ class Bayes_Classifier:
       tokens = self.tokenize(sText)
 
       # Initialize the probabilities to start as log of prior probabilities
-      probPos = math.log(float(self.positiveCount)/(self.positiveCount+self.negativeCount))
-      probNeg = math.log(float(self.negativeCount)/(self.negativeCount+self.positiveCount))
+      probPos = 0 #math.log(float(self.positiveCount)/(self.positiveCount+self.negativeCount))
+      probNeg = 0 #math.log(float(self.negativeCount)/(self.negativeCount+self.positiveCount))
 
       # Add the log probabilities of each word to the positive and negative probability log sums
       for word in tokens:
@@ -157,4 +165,9 @@ class Bayes_Classifier:
       if sToken != "":
          lTokens.append(sToken)
 
-      return lTokens
+      bigrams = []
+      for i in range(0, len(lTokens)):
+         if i != 0:
+            bigrams.append(lTokens[i] + " " + lTokens[i-1])
+
+      return lTokens + bigrams
