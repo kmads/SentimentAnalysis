@@ -98,11 +98,15 @@ class Bayes_Classifier:
 
       # Add the log probabilities of each word to the positive and negative probability log sums
       for word in tokens:
-         probPos+=math.log(self.positiveDict[word])
-         probNeg+= math.log(self.negativeDict[word])
+         if word in self.positiveDict:
+            probPos += math.log(self.positiveDict[word])
+         if word in self.negativeDict:
+            probNeg += math.log(self.negativeDict[word])
 
       # Classify the text as whichever probability was higher
-      if probPos > probNeg:
+      if abs(probPos - probNeg) < 2:
+         return "neutral", probPos, probNeg
+      elif probPos > probNeg:
          return "positive", probPos
       else:
          return "negative", probNeg
