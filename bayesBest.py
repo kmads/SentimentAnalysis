@@ -59,16 +59,20 @@ class Bayes_Classifier:
             # If the word doesn't exist in the negative dictionary yet
             # initialize the word with 2 (1+1 for smoothing) 
             # divided by (negative count +1 for smoothing)
+            # divided by the length of the document 
+            # (weight each word by the length of the document it is contained in)
+            # (i.e. how much a word "dominates" a document. Longer doc = less weight per word)
             if word not in self.negativeDict:
-               self.negativeDict[word] = float(2)/(self.negativeCount+1)
+               self.negativeDict[word] = float(2)/(self.negativeCount+1)/len(tokens)
             # If this word doesn't exist in the positive dictionary yet
             # initialize the word with 1 (0+1 for smoothing)
             # divided by (positive count +1 for smoothing)
+            # divided by the length of the document
             if word not in self.positiveDict:
-               self.positiveDict[word] = float(1)/(self.positiveCount+1)
-            # Otherwise, add 1 divided by (negative count + 1) to the count
+               self.positiveDict[word] = float(1)/(self.positiveCount+1)/len(tokens)
+            # Otherwise, add 1 divided by (negative count + 1) divided by the length of the document to the count
             elif word in self.negativeDict:
-               self.negativeDict[word] += float(1)/(self.negativeCount+1)
+               self.negativeDict[word] += float(1)/(self.negativeCount+1)/len(tokens)
 
       # Add tokens to positive dictionary
       for filename in self.positiveFiles:
@@ -78,16 +82,18 @@ class Bayes_Classifier:
             # If the word doesn't exist in the positive dictionary yet
             # initialize the word with 2 (1+1 for smoothing)
             # divided by (positive count +1 for smoothing)
+            # divided by the length of the document
             if word not in self.positiveDict:
-               self.positiveDict[word] = float(2)/(self.positiveCount+1)
+               self.positiveDict[word] = float(2)/(self.positiveCount+1)/len(tokens)
             # If this word doesn't exist in the negative dictionary yet
             # initialize the word with 1 (0+1 for smoothing)
             # divided by (negative count +1 for smoothing)
+            # divided by the length of the document
             if word not in self.negativeDict:
-               self.negativeDict[word] = float(1)/(self.negativeCount+1)
-            # Otherwise, add 1 divided by (positive count + 1) to the count
+               self.negativeDict[word] = float(1)/(self.negativeCount+1)/len(tokens)
+            # Otherwise, add 1 divided by (positive count + 1) divided by the length of the document to the count
             elif word in self.positiveDict:
-               self.positiveDict[word] += float(1)/(self.positiveCount+1)
+               self.positiveDict[word] += float(1)/(self.positiveCount+1)/len(tokens)
 
       # Pickle the files
       if not testing:
