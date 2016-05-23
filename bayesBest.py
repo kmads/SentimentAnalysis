@@ -49,7 +49,7 @@ class Bayes_Classifier:
          self.train()
 
 
-   def train(self):   
+   def train(self, testing = False):
       """Trains the Naive Bayes Sentiment Classifier."""
       # Add tokens to negative dictionary
       for filename in self.negativeFiles:
@@ -90,12 +90,13 @@ class Bayes_Classifier:
                self.positiveDict[word] += float(1)/(self.positiveCount+1)
 
       # Pickle the files
-      self.save(self.positiveDict, 'positiveDictionaryBest.p')
-      self.save(self.negativeDict, 'negativeDictionaryBest.p')
+      if not testing:
+         self.save(self.positiveDict, 'positiveDictionaryBest.p')
+         self.save(self.negativeDict, 'negativeDictionaryBest.p')
 
 
 
-   def classify(self, sText):
+   def classify(self, sText, useNeutral=True):
       """Given a target string sText, this function returns the most likely document
       class to which the target string belongs (i.e., positive, negative or neutral).
       """
@@ -116,7 +117,7 @@ class Bayes_Classifier:
             probNeg += math.log(self.negativeDict[word])
 
       # Classify the text as whichever probability was higher
-      if abs(probPos - probNeg) < 2:
+      if abs(probPos - probNeg ) < 2 and useNeutral:
          return "neutral"
       elif probPos > probNeg:
          return "positive"
