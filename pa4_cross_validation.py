@@ -1,11 +1,17 @@
-__author__ = 'Holliday'
+# Name: Kristen Amaddio (kea218), Holliday Shuler (hls262), SangHee Kim (shk172)
+# Date: May 20, 2016
+# Description: A Naive Bayes classifier that analyzes the sentiment in a text,
+# assigning a movie review a "positive", "negative", or "neutral" value.
+# Group work statement: All group members were present and contributing during all work on this project.
+# 
+#
 
-import bayesBest, random, os
+import bayesbest, random, os
 import numpy as np
 
 
-execfile("bayesBest.py")
-bc = bayesBest.Bayes_Classifier()
+execfile("bayesbest.py")
+bc = bayesbest.Bayes_Classifier()
 
 random.shuffle(bc.positiveFiles)
 random.shuffle(bc.negativeFiles)

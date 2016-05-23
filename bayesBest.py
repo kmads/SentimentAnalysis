@@ -43,7 +43,6 @@ class Bayes_Classifier:
          self.positiveDict = self.load('positiveDictionaryBest.p')
          self.negativeDict = self.load('negativeDictionaryBest.p')
       except IOError:
-         print "Training"
          self.positiveDict = {}
          self.negativeDict = {}
          self.train()
